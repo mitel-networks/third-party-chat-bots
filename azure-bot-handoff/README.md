@@ -1,6 +1,6 @@
 # Demo Azure Chat-Bot Handoff to Mitel MiCC-B Human Agent
 
-This project is a Proof of Concept to demonstrate human handoff of Azure Chat Bot conversations to a human Agent on a Mitel MiCC-B Contact Center.
+This project, [CL-13602](https://mitel.atlassian.net/browse/CL-13602), is a Proof of Concept to demonstrate human handoff of Azure Chat Bot conversations to a human Agent on a Mitel MiCC-B Contact Center.
 
 Uses [Bot Framework](https://dev.botframework.com) v4
 
@@ -127,6 +127,7 @@ You will add these environment variables to your Azure Portal's Web App configur
     ```bash
     npm install
     ```
+- Create the .env file
 - Start the bot
 
     ```bash
