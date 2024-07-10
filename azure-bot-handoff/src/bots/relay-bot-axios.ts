@@ -17,7 +17,7 @@ export class RelayBotAxios extends ActivityHandler {
      * @param adapter 
      * @param conversations 
      * @param remoteBotSecret 
-     * @param onClose called when the directline connection is closed
+     * @param onClose called when a conversation's Direct Line web-socket connection is closed
      */
     constructor(
         private adapter: CloudAdapter, 

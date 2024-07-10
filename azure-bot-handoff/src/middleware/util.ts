@@ -1,5 +1,4 @@
 import { CloudAdapter, ConversationReference, Activity } from "botbuilder";
-import { Subject } from "rxjs/Subject";
 
 export interface ProactiveData {
     conversationReference: Partial<ConversationReference>,

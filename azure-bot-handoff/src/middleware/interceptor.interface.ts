@@ -1,9 +1,9 @@
 import { ConversationReference } from "botbuilder";
 
 export enum InterceptorState {
-    bot,
-    queued,
-    agent
+    bot,        // messages flow to the bot
+    queued,     // awaiting a human agent
+    agent       // messages flow to human agent 
 }
 
 export interface InterceptorConversation {
