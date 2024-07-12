@@ -229,7 +229,7 @@ class InterceptorMiddleware implements Middleware {
                     await this.updateConversation(context.activity.conversation.id, { state: InterceptorState.queued, conversationReference });
                     
                     // Notify the user that they've been added to the queue
-                    const message = `You have been added to the queue for a human operator. Please wait. ${context.activity.from!.name}/${context.activity.from!.role}/${context.activity.from!.id}`;
+                    const message = 'You have been added to the queue for a human operator. Please wait.';
                     await ctx.sendActivity(MessageFactory.text(message, message));
                 }
             }
