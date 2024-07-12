@@ -1,14 +1,101 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <title>Azure Chat</title>
-    <!-- Global Business Messages widget library reference - Business Messages -->
-<script crossorigin="use-credentials" src="https://businessmessages.google.com/widget/v2/js?cb=callback">
-</script>
-</head>
-    <body>
-        <h1>Azure Bot Handoff PoC</h1>
-        <iframe src='https://webchat.botframework.com/embed/cloudlink-poc-don-1?s=vIDIdhyVBCg.4D1vgaaQFGPmKteJZzs99SfJmb72GKK7EJ25eF7Surs'  style='min-width: 400px; width: 100px; height: 70vh;'></iframe>
-        <!-- <iframe src="https://web.powerva.microsoft.com/environments/Default-de0c8de3-bf07-4569-b282-b7512a1ce9b1/bots/crf3f_weatherCopilot/webchat?__version__=2" frameborder="0" style="min-width: 400px; width: 100px; height: 70vh;"></iframe> -->
-    </body>
+<html>
+  <head>
+    <script src="https://cdn.botframework.com/botframework-webchat/latest/webchat.js"></script>
+    
+    <style>
+      .webchat__initialsAvatar {
+        display: none !important;
+      }
+      .bot {
+        display: flex;
+        flex-direction: column;
+        width: 400px;
+        height: 600px;
+        border-style: solid;
+        border-width: thin;
+      }
+      .header {
+        background-color: rgb(11, 85, 106);
+        color: rgb(255, 255, 255);
+        font-weight: 600;
+        height: 44px;
+        padding: 0px 13px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-family: "Segoe UI", "Segoe UI Web (West European)", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <div style="display: flex; justify-content: space-evenly;">
+        <div class="bot">
+            <div class="header">Weather CoPilot with MiCC Handoff Demo</div>
+            <div id="webchat" role="main" style="width: 100%; height: 90%;"></div>
+        </div>
+        <!-- <iframe src="https://web.powerva.microsoft.com/environments/Default-de0c8de3-bf07-4569-b282-b7512a1ce9b1/bots/crf3f_weatherCopilot/webchat?__version__=2" frameborder="0"></iframe> -->
+    </div>
+
+
+
+    <script>
+
+        // Reference
+        // https://github.com/microsoft/BotFramework-WebChat/blob/master/README.md
+        // https://github.com/microsoft/BotFramework-WebChat/blob/master/docs/API.md
+
+     // "styleSet" is a set of CSS rules which are generated from "styleOptions"
+     const styleSet = window.WebChat.createStyleSet({
+         bubbleBackground: 'rgba(0, 0, 255, .1)',
+         bubbleFromUserBackground: 'rgba(0, 255, 0, .1)',
+         rootHeight: '100%',
+         rootWidth: '100%',
+         backgroundColor: 'White'
+      });
+
+      // After generated, you can modify the CSS rules
+      styleSet.textContent = {
+         ...styleSet.textContent,
+         fontFamily: "'Comic Sans MS', 'Arial', sans-serif",
+         fontWeight: 'bold'
+      };
+
+     // Set the avatar options. 
+     const avatarOptions = {
+         botAvatarInitials: 'BF',  // if I exclude this, the avatar image won't display. I use custom class above in <style> to hide the initials (else initials avaitar appears below image avitar)
+         botAvatarImage: 'https://bot-framework.azureedge.net/bot-icons-v1/35a4e145-5cfa-278c-cc40-b6640d31b7a4_8eI6cFAZz4D6GeR1ocB7Y68VffBNAxa3Vl3Su8CSE3O4Nx.png',
+         userAvatarInitials: 'WC',
+         userAvatarImage: 'https://content.powerapps.com/resource/makerx/static/media/user.417aa99d.svg',
+
+         };
+
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', "https://webchat.botframework.com/api/tokens", true);
+      xhr.setRequestHeader('Authorization', 'BotConnector ' + 'vIDIdhyVBCg.4D1vgaaQFGPmKteJZzs99SfJmb72GKK7EJ25eF7Surs');
+      xhr.send();
+      xhr.onreadystatechange = processRequest;
+
+      function processRequest(e) {
+          if (xhr.readyState == 4  && xhr.status == 200) {
+              var response = JSON.parse(xhr.responseText);
+              window.WebChat.renderWebChat(
+                  {
+                  directLine: window.WebChat.createDirectLine({ token: response }),
+                  userID: 'WebChat_UserId',
+                  locale: 'en-US',
+                  username: 'Web Chat User',
+                  locale: 'en-US',
+                  // Passing 'styleSet' when rendering Web Chat
+                  styleSet,
+                  styleOptions: avatarOptions,
+                  sendTypingIndicator: true
+                  },
+                  document.getElementById('webchat')
+              );
+          }
+      }
+    </script>
+  </body>
 </html>

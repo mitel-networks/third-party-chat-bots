@@ -1,4 +1,4 @@
-import { Activity, ActivityHandler, CloudAdapter, TurnContext } from 'botbuilder';
+import { Activity, ActivityHandler, ActivityTypes, CloudAdapter, MessageFactory, TurnContext } from 'botbuilder';
 import axios from 'axios';
 import { WebSocketDirectlineClient } from './ws-directline-client';
 import { ConversationStore as RelayBotDirectlineStor, RelayBotData } from './relay-directline.interface';
@@ -33,18 +33,35 @@ export class RelayBotAxios extends ActivityHandler {
         }
         // listen for messages from our client
         this.onMessage(async (context, next) => {
-            const clientId = context.activity.conversation.id;
-            let conversation = await this.conversations.get(clientId)
-            if (conversation) {
-                this.sendToBot(conversation.token, conversation.directlineConversationId, context.activity)
-                    .catch(error => console.log(`RelayBotAxios.onMessage sendActivity error ${error} conv=${clientId}`));
-            } else {
-                conversation = await this.createConversation(context.activity); // also starts directline conversation
-                this.sendToBot(conversation.token, conversation.directlineConversationId, context.activity)
-                    .catch(error => console.log(`RelayBotAxios.onMessage createConversation error ${error} conv=${clientId}`));
-            }
+            await this.handleClientInbound(context);
             await next();
         });
+
+        this.onMembersAdded(async (context, next) => {
+            await this.handleClientInbound(context);
+            // By calling next() you ensure that the next BotHandler is run.
+            await next();
+        });
+    }
+
+    private async handleClientInbound(context) {
+        const clientId = context.activity.conversation.id;
+        let conversation = await this.conversations.get(clientId)
+        if (conversation) {
+            this.sendToBot(conversation.token, conversation.directlineConversationId, context.activity)
+                .catch(error => console.log(`RelayBotAxios.onMessage sendActivity error ${error} conv=${clientId}`));
+        } else {
+            conversation = await this.createConversation(context.activity); // also starts directline conversation
+            let msg = context.activity;
+            if (context.activity.type === ActivityTypes.ConversationUpdate) {
+                // Directline does not support ConversationUpdate, so prompt the remote bot to say something, send us a greeting
+                msg = MessageFactory.text('hello');
+                msg.from = context.activity.from;
+            }
+            this.sendToBot(conversation.token, conversation.directlineConversationId, msg)
+                .catch(error => console.log(`RelayBotAxios.onMessage createConversation error ${error} conv=${clientId}`));
+        }
+
     }
 
     private async generateToken(): Promise<string> {
