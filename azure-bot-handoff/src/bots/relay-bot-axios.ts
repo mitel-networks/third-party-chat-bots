@@ -81,7 +81,7 @@ export class RelayBotAxios extends ActivityHandler {
         // console.log(`RelayBotAxios Sent activity:`, { status: response.status, data: response.data });
     }
 
-    private async startConversation() {
+    private async startConversation(clientFromId: string) {
         const response = await axios.post(`https://directline.botframework.com/v3/directline/conversations`, {}, {
             headers: { 'Authorization': `Bearer ${this.remoteBotSecret}` }
         });
@@ -94,9 +94,9 @@ export class RelayBotAxios extends ActivityHandler {
             this.adapter,
             this.conversations,
             response.data.streamUrl,
+            clientFromId,
             () => {},   // onOpen
-            () => {
-                // onClose
+            () => {     // onClose
                 this.deleteConversation(response.data.conversationId);
                 this.onClose && this.onClose(response.data.conversationId);
             },
@@ -113,7 +113,7 @@ export class RelayBotAxios extends ActivityHandler {
     }
     private async createConversation(activity: Activity) {      
         const conversationReference = TurnContext.getConversationReference(activity);
-        const {id, token} = await this.startConversation();
+        const {id, token} = await this.startConversation(activity.from?.id);
         const cfg: RelayBotData = {
             clientConversationId: activity.conversation.id,
             directlineConversationId: id,

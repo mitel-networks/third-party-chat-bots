@@ -3,6 +3,7 @@ lib
 .env
 dist
 poc-azure-bot-handoff.zip
+azure-bot-handoff.zip
 Archive.zip
 deploymentScripts
 deploymentTemplates

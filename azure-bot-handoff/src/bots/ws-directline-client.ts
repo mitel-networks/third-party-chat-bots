@@ -3,15 +3,28 @@ import { ConversationStore as RelayBotDirectlineStor } from './relay-directline.
 import { CloudAdapter } from "botbuilder";
 import { Util } from "../middleware/util";
 
-
+/**
+ * Listen to web socket and send incomming activities to the human client
+ */
 export class WebSocketDirectlineClient {
     private ws: WebSocket | null = null;
     private readonly url: string;
 
+    /**
+     * 
+     * @param adapter 
+     * @param conversations data store
+     * @param url WeSocket URL
+     * @param clientUserId this is the ID of the human user who is initiating the conversation
+     * @param onOpen 
+     * @param onClose 
+     * @param onError 
+     */
     constructor(
         private adapter: CloudAdapter,
         private conversations: RelayBotDirectlineStor,
         url: string,
+        private clientUserId: string,
         private onOpen: () => void,
         private onClose: () => void,
         private onError: (Error) => void,
@@ -56,12 +69,14 @@ export class WebSocketDirectlineClient {
             console.log("WebSocketDirectlineClient.onMessage Error parsing", error);
         }
         // Handle incoming messages here
-        let i = 0;
         parsed.activities.forEach(async (activity: any) => {
             // console.log(`wsrx> Activity(${++i}/${parsed.activities.length}):`, activity);
             const conversation = await this.conversations.get(activity.conversation.id);
             if (conversation) {
-                Util.sendProactiveActivity(this.adapter, conversation.conversationReference, activity);
+                if (this.clientUserId != activity.from.id) {
+                    // The ws seems to echo back all messages, so do not send back to client its own message
+                    Util.sendProactiveActivity(this.adapter, conversation.conversationReference, activity);
+                }
             } else {
                 console.log('WebSocketDirectlineClient.onMessage activities, No conversation reference found for activity', activity);
             }
