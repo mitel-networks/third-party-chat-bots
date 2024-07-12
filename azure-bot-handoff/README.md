@@ -1,6 +1,6 @@
 # Demo Azure Chat-Bot Handoff to Mitel MiCC-B Human Agent
 
-This project, [CL-13602](https://mitel.atlassian.net/browse/CL-13602), is a Proof of Concept to demonstrate human handoff of Azure Chat Bot conversations to a human Agent on a Mitel MiCC-B Contact Center.
+This project, [CL-13602](https://mitel.atlassian.net/browse/CL-13602), is a Proof of Concept to demonstrate human handoff of Azure Chat Bot conversations to a human Agent on a Mitel MiCC-B Contact Center. For more information, see our [Confluence Page on 3rd Party Chatbots](https://mitel.atlassian.net/wiki/spaces/CP/pages/614461767823/3rd+Party+Chatbots).
 
 Uses [Bot Framework](https://dev.botframework.com) v4
 
@@ -24,9 +24,9 @@ There are 2 bots in here,
 
 There is [Interceptor middleware](./src/middleware/interceptor.middleware.ts) that is placed in the event pipeline ahead of the target bot. When the interceptor sees a `handoff` event from the bot, it will route all future messages to a Mitel Contact Center Agent.
 
-If you have access to the source code of your bot, then you can add the Interceptor middleware to handle your bot's human handoff requests.
+If you have access to the source code of your bot, then you should add the Interceptor middleware to your bot.
 
-If you do not have access to your bot's source code, then you can use the RelayBot as a man-in-the-middle bot that will sit between your chat widget (or channel) and your deployed custom bot (such as created by Microsoft CoPilot Studio).
+If you do not have access to your bot's source code, then you can use the RelayBot as a man-in-the-middle bot that will sit between your chat widget (or channel) and your deployed custom bot (such as created by Microsoft CoPilot Studio). The relay bot will add some delay as now you have a chain of bots. 
 
 Together, the Interceptor and a Mitel MiCC implement The Engagement Hub that is found in this diagram from [Configure handoff to any generic engagement hub](https://learn.microsoft.com/en-us/microsoft-copilot-studio/configure-generic-handoff).
 
@@ -51,7 +51,7 @@ This package contains the following major components. You will select the compon
 
 There are 2 main configurations,
 1. if you are creating your own Bot Framework SDK bot, then you only need to place the Interceptor middleware in the pipeline ahead of your Bot. Your bot will need to send a `handoff.initiate` activity when it wants to handoff to a human.
-2. if you have a running bot that you cannot modify (sw), such as one created by Microsoft CoPilot Studio, then you would build an Interceptor/Relay Bot based on this package. Configure your users to connect to this bot and the RelayBot to connect to your target bot.
+2. if you have a running bot that you cannot modify, such as one created by Microsoft CoPilot Studio, then you would build an Interceptor/Relay Bot based on this package. Configure your users to connect to this bot and the RelayBot to connect to your target bot.
 
 ### Interceptor Middleware
 
@@ -69,11 +69,13 @@ export enum InterceptorState {
 Note, the transcript is included in the `handoff.initiate` event. If your bot does not include a transcript, you could consider [TranscriptLoggerMiddleware](https://github.com/Microsoft/botbuilder-js/blob/main/libraries/botbuilder-core/src/transcriptLogger.ts) which is part of botbuilder-core package.
 
 #### Configuration
-Uses Mitel WorkFlow. You will need to provide the WorkFlow webhook URL.
+Uses Mitel WorkFlow. MITEL_ENDPOINT is webhook URL of the CloudLink Workflow webhook that will connect you to a Call Center agent. See [Confluence Page on Workflow to CC Agent](https://mitel.atlassian.net/wiki/spaces/CP/pages/614462128663/Workflow+to+CC+Agent) for help on this.
 ##### Environment Variables
+
 MITEL_ENDPOINT='https://workflow.us.dev.api.mitel.io/2017-09-01/webhooks/accounts/---hidden---'
+
 ##### Data Store
-If you will be running multiple instances of this code then you will need to hook up external data storage. This is currently implemented as a JS Map.
+If you will be running multiple instances of this code (scale out) then you will need to hook up external data storage. This is currently implemented as a JS Map.
 
 ### Echo Bot
 
