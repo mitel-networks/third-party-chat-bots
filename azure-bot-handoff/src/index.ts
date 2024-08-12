@@ -4,7 +4,8 @@ const ENV_FILE = path.join(__dirname, '..', '.env');
 config({ path: ENV_FILE });
 import * as restify from 'restify';
 import { INodeSocket } from 'botframework-streaming';
-
+const { TwilioWhatsAppAdapter } = require('@botbuildercommunity/adapter-twilio-whatsapp');
+import _ from 'lodash';
 // Import required bot services.
 // See https://aka.ms/bot-services to learn more about the different parts of a bot.
 import {
@@ -18,12 +19,25 @@ import InterceptorMiddleware from './middleware/interceptor.middleware';
 import { RelayBotData } from './bots/relay-directline.interface';
 import { RelayBotAxios } from './bots/relay-bot-axios';
 import { EchoBot } from './bots/echo-bot';
+import { Util } from './middleware/util';
+
+
+const whatsAppAdapter = new TwilioWhatsAppAdapter({
+    accountSid: process.env.TWILIO_ACCOUNT_SID, // Account SID
+    authToken: process.env.TWILIO_AUTH_TOKEN, // Auth Token
+    phoneNumber: process.env.TWILIO_NUMBER, // The From parameter consisting of whatsapp: followed by the sending WhatsApp number (using E.164 formatting)
+    endpointUrl: process.env.TWILIO_ENDPOINT_URL // Endpoint URL you configured in the sandbox, used for validation
+});
+Util.whatsappAdapter = whatsAppAdapter;
+
+
 
 console.log('poc-azure-bot-handoff v7.5 7/05 11:16');
 
 // Create HTTP server.
 const server = restify.createServer();
 server.use(restify.plugins.bodyParser());
+
 
 server.listen(process.env.port || process.env.PORT || 3978, () => {
     console.log(`\n${server.name} listening to ${server.url}`);
@@ -85,7 +99,7 @@ const mitelUrl = process.env.MITEL_ENDPOINT;
 adapter.use(new InterceptorMiddleware(conversationStoreP, mitelUrl));
 
 // Create the main dialog.
-// const myBot = new EchoBot();
+// const bot = new EchoBot();
 const dlStore = new Map<string, RelayBotData>();
 const dlStoreP = {
     set: async (id: string, data: RelayBotData) => {
@@ -100,14 +114,24 @@ const dlStoreP = {
     }
 };
 const secret = process.env.REMOTE_BOT_DIRECT_LINE_SECRET;
-const myBot = new RelayBotAxios(adapter, dlStoreP, secret, (connectionId) => conversationStoreP.delete(connectionId));
+const bot = new RelayBotAxios(adapter, dlStoreP, secret, (connectionId) => conversationStoreP.delete(connectionId));
 
 // Listen for incoming requests.
 server.post('/api/messages', async (req, res) => {
     // Route received a request to adapter for processing
     console.log(`rx> ${req.url} ${req.body.type} conv=${req.body?.conversation?.id}`);
     // console.log(req.body);
-    await adapter.process(req, res, (context) => myBot.run(context));
+    await adapter.process(req, res, (context) => bot.run(context));
+});
+
+// WhatsApp endpoint for Twilio
+server.post('/api/whatsapp/messages', async (req, res) => {
+    console.log(`rx> ${req.url}`, {body: req.body, headers: req.headers});
+    await whatsAppAdapter.processActivity(req, res, async (context) => {
+        const contextcopy = _.cloneDeep(context);
+        // Route to main dialog.
+        await bot.run(context);
+    });
 });
 
 
@@ -121,5 +145,5 @@ server.on('upgrade', async (req, socket, head) => {
     // Set onTurnError for the CloudAdapter created for each connection.
     streamingAdapter.onTurnError = onTurnErrorHandler;
 
-    await streamingAdapter.process(req, socket as unknown as INodeSocket, head, (context) => myBot.run(context));
+    await streamingAdapter.process(req, socket as unknown as INodeSocket, head, (context) => bot.run(context));
 });
