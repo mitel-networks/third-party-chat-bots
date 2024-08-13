@@ -4,7 +4,7 @@ import { Activity, ActivityImportance, BotFrameworkAdapterSettings } from "botbu
 export class TwilioWhatsAppCustomAdapter extends TwilioWhatsAppAdapter {
 
     constructor(settings: TwilioWhatsAppAdapterSettings, botFrameworkAdapterSettings?: BotFrameworkAdapterSettings) {
-        super(settings);
+        super(settings, botFrameworkAdapterSettings);
     }
 
         /**
