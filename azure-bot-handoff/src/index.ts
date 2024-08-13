@@ -4,7 +4,8 @@ const ENV_FILE = path.join(__dirname, '..', '.env');
 config({ path: ENV_FILE });
 import * as restify from 'restify';
 import { INodeSocket } from 'botframework-streaming';
-const { TwilioWhatsAppAdapter } = require('@botbuildercommunity/adapter-twilio-whatsapp');
+// const { TwilioWhatsAppAdapter } = require('@botbuildercommunity/adapter-twilio-whatsapp');
+import { TwilioWhatsAppCustomAdapter } from './adapters/twilio-whatsapp-custom.adapter';
 import _ from 'lodash';
 // Import required bot services.
 // See https://aka.ms/bot-services to learn more about the different parts of a bot.
@@ -22,7 +23,7 @@ import { EchoBot } from './bots/echo-bot';
 import { Util } from './middleware/util';
 
 
-const whatsAppAdapter = new TwilioWhatsAppAdapter({
+const whatsAppAdapter = new TwilioWhatsAppCustomAdapter({
     accountSid: process.env.TWILIO_ACCOUNT_SID, // Account SID
     authToken: process.env.TWILIO_AUTH_TOKEN, // Auth Token
     phoneNumber: process.env.TWILIO_NUMBER, // The From parameter consisting of whatsapp: followed by the sending WhatsApp number (using E.164 formatting)

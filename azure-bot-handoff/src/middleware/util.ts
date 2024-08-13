@@ -1,3 +1,4 @@
+import { TwilioWhatsAppAdapter } from "@botbuildercommunity/adapter-twilio-whatsapp";
 import { CloudAdapter, ConversationReference, Activity, MessageFactory, ActivityTypes } from "botbuilder";
 
 export interface ProactiveData {
@@ -8,7 +9,7 @@ export interface ProactiveData {
 
 export class Util {
 
-    static whatsappAdapter: CloudAdapter;
+    static whatsappAdapter: TwilioWhatsAppAdapter;
 
     static async sendProactiveMessage(
         adapter: CloudAdapter,
