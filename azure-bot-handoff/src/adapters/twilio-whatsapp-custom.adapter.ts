@@ -75,4 +75,8 @@ export class TwilioWhatsAppCustomAdapter extends TwilioWhatsAppAdapter {
             }
             return twilioMessage;
         }
+
+        validateRequest(authToken, signature, requestUrl, message) {
+            return true; // Do not ship this override,  https://help.twilio.com/tickets/17994060
+        }
 }

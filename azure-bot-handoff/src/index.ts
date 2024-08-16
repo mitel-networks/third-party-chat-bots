@@ -33,7 +33,7 @@ Util.whatsappAdapter = whatsAppAdapter;
 
 
 
-console.log('poc-azure-bot-handoff v7.6 8/13 11:45');
+console.log('poc-azure-bot-handoff twilio v7.7 8/16 8:23');
 
 // Create HTTP server.
 const server = restify.createServer();
@@ -128,9 +128,8 @@ server.post('/api/messages', async (req, res) => {
 // WhatsApp endpoint for Twilio
 server.post('/api/whatsapp/messages', async (req, res) => {
     // console.log(`rx> ${req.url}`, {body: req.body, headers: req.headers});
-    console.log(`rx> ${req.url}`, {from: req.body.From, to: req.body.To, body: req.body.Body});
+    console.log(`rx> ${req.url}`, {from: req.body.From, to: req.body.To, body: req.body, headers: req.headers});
     await whatsAppAdapter.processActivity(req, res, async (context) => {
-        const contextcopy = _.cloneDeep(context);
         // Route to main dialog.
         await bot.run(context);
     });
