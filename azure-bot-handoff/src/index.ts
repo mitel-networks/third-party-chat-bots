@@ -33,7 +33,7 @@ Util.whatsappAdapter = whatsAppAdapter;
 
 
 
-console.log('poc-azure-bot-handoff twilio v7.7 8/16 8:23');
+console.log('poc-azure-bot-handoff twilio v7.10 8/16 10:47');
 
 // Create HTTP server.
 const server = restify.createServer();
@@ -98,6 +98,7 @@ const conversationStoreP = {
 };
 const mitelUrl = process.env.MITEL_ENDPOINT;
 adapter.use(new InterceptorMiddleware(conversationStoreP, mitelUrl));
+whatsAppAdapter.use(new InterceptorMiddleware(conversationStoreP, mitelUrl));
 
 // Create the main dialog.
 // const bot = new EchoBot();
