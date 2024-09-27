@@ -115,7 +115,7 @@ You will add these environment variables to your Azure Portal's Web App configur
 ![](./images/Azure-env-vars.png)
 ## Prerequisites
 
-- [Node.js](https://nodejs.org) I used version 18.20.3
+- [Node.js](https://nodejs.org) Use node v18+. I used version 18.20.3
 
     ```bash
     # determine node version

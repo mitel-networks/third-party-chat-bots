@@ -43,6 +43,8 @@ class InterceptorMiddleware implements Middleware {
     }
 
     private async sendToMitel(data: any, context?: TurnContext): Promise<Response> {
+        // ReferenceError: fetch is not defined
+        // note, fetch depends on being complied with nod 18 or highter https://stackoverflow.com/a/48433898
         const response = await fetch(this.mitelUrl, { method: 'POST', body: JSON.stringify(data) });
         if (context) {
             // Send a trace activity, which will be displayed in Bot Framework Emulator
@@ -194,7 +196,7 @@ class InterceptorMiddleware implements Middleware {
                         context.sendActivity(`Sorry, I am unable to send a message to the agent at this time. ${JSON.stringify(response)}`);
                     }
                 } else {
-                    await context.sendActivity(`You are in the queue. We are waiting for a human operator. Type @bot to return to the bot conv=${context.activity.conversation.id}`);
+                    await context.sendActivity(`You are in the queue. We are waiting for a human operator. Type @bot to return to the bot`);
                 }
                 break;
         }
